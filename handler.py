@@ -1,9 +1,31 @@
 import json
 
-
-def hello(event, context):
-    body = {
-        "message": "Go Serverless v4.0! Your function executed successfully!"
+def ingest(event, context):
+    return {
+        "statusCode": 200,
+        "body": "not implemented yet"
     }
 
-    return {"statusCode": 200, "body": json.dumps(body)}
+def normalize(event, context):
+    return {
+        "statusCode": 200,
+        "body": "not implemented yet"
+    }
+
+def embed(event, context):
+    return {
+        "statusCode": 200,
+        "body": "not implemented yet"
+    }
+
+def rag_query(event, context):
+    return {
+        "statusCode": 200,
+        "body": "not implemented yet"
+    }
+
+def list_articles(event, context):
+    return {
+        "statusCode": 200,
+        "body": "not implemented yet"
+    }

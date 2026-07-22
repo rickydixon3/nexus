@@ -1,15 +1,52 @@
-# "org" ensures this Service is used with the correct Serverless Framework Access Key.
 org: rickydixon3
-# "service" is the name of this project. This will also be added to your AWS resource names.
 service: nexus
 
 provider:
   name: aws
   runtime: python3.12
+  region: us-east-1
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action: s3:PutObject
+          Resource: arn:aws:s3:::nexus-raw-articles-rickydixon3/*
+        - Effect: Allow
+          Action: s3:GetObject
+          Resource: arn:aws:s3:::nexus-raw-articles-rickydixon3/*
+        - Effect: Allow
+          Action: secretsmanager:GetSecretValue
+          Resource: arn:aws:secretsmanager:us-east-1:512830091587:secret:nexus/api-keys-mxfDGf
+        - Effect: Allow
+          Action: secretsmanager:GetSecretValue
+          Resource: arn:aws:secretsmanager:us-east-1:512830091587:secret:nexus/db-credentials-ksmwNm
 
 functions:
-  hello:
-    handler: handler.hello
+  ingest:
+    handler: ingest.ingest
+    timeout: 300
+    events:
+      - schedule: rate(6 hours)
+
+  normalize:
+    handler: handler.normalize
+
+  embed:
+    handler: handler.embed
+
+  ragHandler:
+    handler: handler.rag_query
+    events:
+      - httpApi:
+          path: /query
+          method: post
+
+  listArticles:
+    handler: handler.list_articles
+    events:
+      - httpApi:
+          path: /articles
+          method: get
 
 plugins:
   - serverless-python-requirements
