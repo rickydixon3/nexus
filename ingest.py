@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 from common.secrets import get_secret
 from common.s3_utils import put_json
-from common.sources import guardian, nyt
+from common.sources import guardian, nyt, currents
 
 RAW_BUCKET = "nexus-raw-articles-rickydixon3"
 DEFAULT_WINDOW_HOURS = 6
@@ -45,6 +45,15 @@ def ingest(event, context):
     )
     put_json(RAW_BUCKET, f"nyt/{timestamp}.json", nyt_articles)
     summary.append(f"{len(nyt_articles)} NYT articles")
+
+    # Currents News
+    currents_articles = currents.fetch_articles(
+        api_keys["currents_api_key"],
+        from_date.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        to_date.strftime("%Y-%m-%dT%H:%M:%SZ"),
+    )
+    put_json(RAW_BUCKET, f"currents/{timestamp}.json", currents_articles)
+    summary.append(f"{len(currents_articles)} Currents articles")
 
     return {
         "statusCode": 200,
