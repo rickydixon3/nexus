@@ -21,6 +21,14 @@ provider:
           Action: secretsmanager:GetSecretValue
           Resource: arn:aws:secretsmanager:us-east-1:512830091587:secret:nexus/db-credentials-ksmwNm
 
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    useDownloadCache: false
+    useStaticCache: false3
+
+    
 functions:
   ingest:
     handler: ingest.ingest
@@ -29,7 +37,8 @@ functions:
       - schedule: rate(6 hours)
 
   normalize:
-    handler: handler.normalize
+    handler: normalize.normalize
+    timeout: 60
 
   embed:
     handler: handler.embed
