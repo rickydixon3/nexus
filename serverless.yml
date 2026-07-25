@@ -41,7 +41,8 @@ functions:
     timeout: 60
 
   embed:
-    handler: handler.embed
+    handler: embed.embed
+    timeout: 300
 
   ragHandler:
     handler: handler.rag_query
