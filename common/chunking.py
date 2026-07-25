@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 
 TARGET_CHUNK_WORDS = 700
 OVERLAP_SENTENCES = 1
+MIN_CHUNK_WORDS = 8
 
 
 def _split_into_sentences(text):
@@ -99,7 +100,9 @@ def _chunk_liveblog(html_body):
     Split a liveblog's HTML into chunks based on <div class="block"> boundaries,
     since each block is a self-contained, independently timestamped update.
     Any block whose own text still exceeds the target size is further split
-    via the standard paragraph/sentence logic.
+    via the standard paragraph/sentence logic. Blocks with too little real
+    content (e.g. just a timestamp, an embedded tweet/video with no caption
+    text) are skipped entirely.
     """
     soup = BeautifulSoup(html_body, "html.parser")
     blocks = soup.find_all("div", class_="block")
@@ -110,6 +113,8 @@ def _chunk_liveblog(html_body):
         if not paragraphs:
             continue
         block_text = " ".join(paragraphs)
+        if len(block_text.split()) < MIN_CHUNK_WORDS:
+            continue
         if len(block_text.split()) <= TARGET_CHUNK_WORDS:
             all_chunks.append(block_text)
         else:

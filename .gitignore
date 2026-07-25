@@ -224,3 +224,4 @@ node_modules/
 
 # Serverless Framework
 .serverless/
+scripts/

@@ -5,6 +5,16 @@ provider:
   name: aws
   runtime: python3.12
   region: us-east-1
+  httpApi:
+    cors:
+      allowedOrigins:
+        - http://localhost:5173
+        - https://your-eventual-amplify-domain.amplifyapp.com
+      allowedMethods:
+        - GET
+        - POST
+      allowedHeaders:
+        - Content-Type
   iam:
     role:
       statements:
@@ -45,7 +55,8 @@ functions:
     timeout: 300
 
   ragHandler:
-    handler: handler.rag_query
+    handler: rag_handler.rag_query
+    timeout: 60
     events:
       - httpApi:
           path: /query
