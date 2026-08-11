@@ -275,7 +275,6 @@ def rag_query(event, context):
         results = _select_results(candidates)
 
     print(f"Retrieved {len(results)} results")
-
     cursor.close()
     conn.close()
 

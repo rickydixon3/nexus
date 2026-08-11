@@ -1,8 +1,13 @@
+import json
 from datetime import datetime, timedelta, timezone
 
 from common.secrets import get_secret
 from common.s3_utils import put_json
 from common.sources import guardian, nyt, currents
+
+import boto3
+
+lambda_client = boto3.client("lambda")
 
 RAW_BUCKET = "nexus-raw-articles-rickydixon3"
 DEFAULT_WINDOW_HOURS = 6
@@ -34,6 +39,7 @@ def ingest(event, context):
         from_date.strftime("%Y-%m-%d"),
         to_date.strftime("%Y-%m-%d"),
     )
+    print(f"Guardian done: {len(guardian_articles)} articles")
     put_json(RAW_BUCKET, f"guardian/{timestamp}.json", guardian_articles)
     summary.append(f"{len(guardian_articles)} Guardian articles")
 
@@ -43,6 +49,8 @@ def ingest(event, context):
         from_date.strftime("%Y%m%d"),
         to_date.strftime("%Y%m%d"),
     )
+    print(f"NYT done: {len(nyt_articles)} articles")
+
     put_json(RAW_BUCKET, f"nyt/{timestamp}.json", nyt_articles)
     summary.append(f"{len(nyt_articles)} NYT articles")
 
@@ -52,8 +60,16 @@ def ingest(event, context):
         from_date.strftime("%Y-%m-%dT%H:%M:%SZ"),
         to_date.strftime("%Y-%m-%dT%H:%M:%SZ"),
     )
+    print(f"Currents done: {len(currents_articles)} articles")
     put_json(RAW_BUCKET, f"currents/{timestamp}.json", currents_articles)
     summary.append(f"{len(currents_articles)} Currents articles")
+
+    lambda_client.invoke(
+            FunctionName="nexus-dev-normalize",
+            InvocationType="Event",
+            Payload=json.dumps({"timestamp": timestamp}).encode("utf-8"),
+        )
+    print("Triggered normalize")
 
     return {
         "statusCode": 200,

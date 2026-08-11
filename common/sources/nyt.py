@@ -24,17 +24,21 @@ def fetch_articles(api_key, from_date, to_date):
             "page": page,
         }
 
+        print(f"NYT requesting page {page}")
         response = requests.get(BASE_URL, params=params)
 
         if response.status_code == 429:
             retry_after = int(response.headers.get("Retry-After", REQUEST_DELAY_SECONDS))
+            print(f"NYT 429 on page {page}, waiting {retry_after}s")
             time.sleep(retry_after)
             response = requests.get(BASE_URL, params=params)
+            print(f"NYT retry status on page {page}: {response.status_code}")
 
         response.raise_for_status()
         payload = response.json()["response"]
 
         all_results.extend(payload["docs"])
+        print(f"NYT page {page} done, total so far {len(all_results)}")
 
         hits = payload["metadata"]["hits"]
         if (page + 1) * 10 >= hits or page >= 99:

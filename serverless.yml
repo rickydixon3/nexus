@@ -9,7 +9,8 @@ provider:
     cors:
       allowedOrigins:
         - http://localhost:5173
-        - https://your-eventual-amplify-domain.amplifyapp.com
+        - https://dfx81lmy69kmb.cloudfront.net
+        - https://nexusnews.dev
       allowedMethods:
         - GET
         - POST
@@ -30,19 +31,23 @@ provider:
         - Effect: Allow
           Action: secretsmanager:GetSecretValue
           Resource: arn:aws:secretsmanager:us-east-1:512830091587:secret:nexus/db-credentials-ksmwNm
-
+        - Effect: Allow
+          Action: lambda:InvokeFunction
+          Resource:
+            - arn:aws:lambda:us-east-1:512830091587:function:nexus-dev-normalize
+            - arn:aws:lambda:us-east-1:512830091587:function:nexus-dev-embed
 
 custom:
   pythonRequirements:
     dockerizePip: true
     useDownloadCache: false
-    useStaticCache: false3
+    useStaticCache: false
 
     
 functions:
   ingest:
     handler: ingest.ingest
-    timeout: 300
+    timeout: 180
     events:
       - schedule: rate(6 hours)
 
@@ -63,7 +68,8 @@ functions:
           method: post
 
   listArticles:
-    handler: handler.list_articles
+    handler: list_articles.list_articles
+    timeout: 30
     events:
       - httpApi:
           path: /articles
