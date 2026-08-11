@@ -4,6 +4,8 @@ A serverless RAG news platform on AWS that ingests, embeds, and clusters article
 
 **Live:** [nexusnews.dev](https://nexusnews.dev)
 
+![Nexus interface — Ask panel with a real query and cited answer, Browse panel with active filters](docs/preview.png)
+
 ---
 
 ## Overview
@@ -14,9 +16,9 @@ Nexus runs two things: a fully autonomous ingestion pipeline that pulls, normali
 
 ## Architecture
 
-### Ingestion & processing pipeline
+![Nexus architecture — automated ingestion pipeline on the left, user query and deployment path on the right, both converging on shared RDS and OpenAI infrastructure](docs/architecture.png)
 
-<!---![Ingestion pipeline architecture](docs/architecture-ingestion.png)--->
+### Ingestion & processing pipeline
 
 EventBridge triggers a Lambda that pulls new articles from three APIs into S3. A second Lambda normalizes and deduplicates them into RDS. A third chunks and embeds the content via OpenAI, then clusters near-duplicate coverage of the same event using pgvector cosine similarity. The three functions are chained via direct Lambda invocation, so the pipeline runs end-to-end from one scheduled trigger, with no manual steps.
 
