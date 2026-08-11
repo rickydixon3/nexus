@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChatThread } from './components/ChatThread';
 import { ChatInput } from './components/ChatInput';
 import { ArticleFeed } from './components/ArticleFeed';
+import { FilterBar } from './components/FilterBar';
 import { queryNexus } from './api/query';
 import type { ChatMessage } from './types';
 
@@ -9,6 +10,8 @@ function App() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [mobileTab, setMobileTab] = useState<'ask' | 'browse'>('ask');
+  const [source, setSource] = useState('');
+  const [category, setCategory] = useState('');
 
   async function handleSend(query: string) {
     setMessages((prev) => [...prev, { role: 'user', content: query }]);
@@ -70,13 +73,19 @@ function App() {
           <div className={`shell-browse ${mobileTab !== 'browse' ? 'mobile-hidden' : ''}`}>
             <div className="shell-browse-header">Latest articles</div>
             <div className="shell-browse-list">
-              <ArticleFeed />
+              <FilterBar
+                source={source}
+                category={category}
+                onSourceChange={setSource}
+                onCategoryChange={setCategory}
+              />
+              <ArticleFeed source={source || undefined} category={category || undefined} />
             </div>
           </div>
         </div>
 
         <div className="shell-footer">
-          Powered by retrieval-augmented generation (RAG) Data from the Guardian, NYT, and Currents API
+          Powered by retrieval-augmented generation (RAG) · Data from the Guardian, NYT, and Currents
         </div>
       </div>
     </div>
