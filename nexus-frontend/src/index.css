@@ -439,6 +439,15 @@ body {
     width: 100%;
   }
 
+  .shell-browse-list {
+    padding: 0 16px 20px;
+  }
+
+  .filter-row select {
+    flex: 1;
+    min-width: 0;
+  }
+
   .mobile-tabs {
     display: flex;
     gap: 4px;
