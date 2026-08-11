@@ -8,9 +8,9 @@ interface ChatThreadProps {
 }
 
 const SUGGESTIONS = [
-  'What major events have happened recently?',
-  'What is happening in the Middle East?',
-  'Any updates on the Commonwealth Games?',
+  'What are the top sports news stories?',
+  'What major news events have happened recently?',
+  'What\'s happening with technology stocks?',
 ];
 
 export function ChatThread({

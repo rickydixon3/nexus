@@ -2,15 +2,13 @@ import { useState } from 'react';
 import { ChatThread } from './components/ChatThread';
 import { ChatInput } from './components/ChatInput';
 import { ArticleFeed } from './components/ArticleFeed';
-import { FilterBar } from './components/FilterBar';
 import { queryNexus } from './api/query';
 import type { ChatMessage } from './types';
 
 function App() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
-  const [source, setSource] = useState('');
-  const [category, setCategory] = useState('');
+  const [mobileTab, setMobileTab] = useState<'ask' | 'browse'>('ask');
 
   async function handleSend(query: string) {
     setMessages((prev) => [...prev, { role: 'user', content: query }]);
@@ -43,8 +41,24 @@ function App() {
         <div className="shell-topbar">
           <div className="mark">nexus<span className="dot">.</span></div>
         </div>
+
+        <div className="mobile-tabs">
+          <button
+            className={mobileTab === 'ask' ? 'active' : ''}
+            onClick={() => setMobileTab('ask')}
+          >
+            Ask
+          </button>
+          <button
+            className={mobileTab === 'browse' ? 'active' : ''}
+            onClick={() => setMobileTab('browse')}
+          >
+            Browse
+          </button>
+        </div>
+
         <div className="shell-body">
-          <div className="shell-ask">
+          <div className={`shell-ask ${mobileTab !== 'ask' ? 'mobile-hidden' : ''}`}>
             <div className="shell-header-row">
               <button onClick={handleNewConversation} disabled={messages.length === 0}>
                 New conversation
@@ -53,19 +67,14 @@ function App() {
             <ChatThread messages={messages} loading={loading} onSuggestionClick={handleSend} />
             <ChatInput onSend={handleSend} disabled={loading} />
           </div>
-          <div className="shell-browse">
+          <div className={`shell-browse ${mobileTab !== 'browse' ? 'mobile-hidden' : ''}`}>
             <div className="shell-browse-header">Latest articles</div>
             <div className="shell-browse-list">
-              <FilterBar
-                source={source}
-                category={category}
-                onSourceChange={setSource}
-                onCategoryChange={setCategory}
-              />
-              <ArticleFeed source={source || undefined} category={category || undefined} />
+              <ArticleFeed />
             </div>
           </div>
         </div>
+
         <div className="shell-footer">
           Powered by retrieval-augmented generation (RAG) Data from the Guardian, NYT, and Currents API
         </div>

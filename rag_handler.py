@@ -266,6 +266,7 @@ def rag_query(event, context):
     cursor = conn.cursor()
 
     is_recent = _classify_query_intent(client, user_query)
+    print(f"is_recent classification: {is_recent}")
 
     if is_recent:
         results = _get_recent_articles(cursor)

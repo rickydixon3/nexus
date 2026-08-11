@@ -31,6 +31,12 @@ body {
   margin: 0;
 }
 
+/* --- Mobile tab bar (hidden by default, shown only inside the mobile media query below) --- */
+
+.mobile-tabs {
+  display: none;
+}
+
 /* --- App shell --- */
 
 .shell-page {
@@ -72,17 +78,6 @@ body {
   height: clamp(480px, 78vh, 820px);
 }
 
-@media (max-width: 900px) {
-  .shell-body {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-  .shell-ask,
-  .shell-browse {
-    height: 560px;
-  }
-}
-
 .shell-ask {
   display: flex;
   flex-direction: column;
@@ -100,7 +95,7 @@ body {
 
 .shell-header-row button {
   font-size: 12px;
-  padding: 4px 10px;
+  padding: 10px 14px;
   border: 0.5px solid var(--border-strong);
   border-radius: var(--radius);
   background: var(--surface);
@@ -142,7 +137,7 @@ body {
   text-align: center;
 }
 
-/* --- Browse filters (built, not yet wired to a FilterBar component) --- */
+/* --- Browse filters --- */
 
 .filter-row {
   display: flex;
@@ -158,13 +153,13 @@ body {
 }
 
 .filter-row select {
-  height: 36px;
+  height: 44px;
   border: 0.5px solid var(--border-strong);
   border-radius: var(--radius);
   background: var(--surface);
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
-  padding: 0 10px;
+  padding: 0 12px;
 }
 
 .chip {
@@ -182,8 +177,8 @@ body {
 }
 
 .chip button {
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
   border: none;
   background: none;
   color: var(--accent);
@@ -191,6 +186,9 @@ body {
   line-height: 1;
   cursor: pointer;
   padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* --- Dense list Browse view --- */
@@ -335,7 +333,7 @@ body {
   border: 0.5px solid var(--border-strong);
   border-radius: 22px;
   background: var(--bg);
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-primary);
 }
 
@@ -428,4 +426,56 @@ body {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* --- Mobile overrides (must stay LAST in the file so these win the cascade) --- */
+
+@media (max-width: 900px) {
+  .shell-page {
+    padding: 1rem 12px;
+  }
+
+  .shell-container {
+    width: 100%;
+  }
+
+  .mobile-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 10px 16px;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .mobile-tabs button {
+    flex: 1;
+    padding: 10px;
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .mobile-tabs button.active {
+    border-color: var(--accent);
+    background: var(--accent-tint);
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .shell-body {
+    grid-template-columns: 1fr;
+    height: 85vh;
+  }
+
+  .shell-ask,
+  .shell-browse {
+    height: 100%;
+  }
+
+  .shell-ask.mobile-hidden,
+  .shell-browse.mobile-hidden {
+    display: none;
+  }
 }
