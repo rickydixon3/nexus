@@ -14,6 +14,7 @@ DEFAULT_WINDOW_HOURS = 6
 
 
 def ingest(event, context):
+    print("ingest function started")
     now = datetime.now(timezone.utc)
 
     from_date = event.get("from_date") if event else None
@@ -30,46 +31,41 @@ def ingest(event, context):
         to_date = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
 
     api_keys = get_secret("nexus/api-keys")
+    print("Secrets retrieved successfully")
     timestamp = now.strftime('%Y-%m-%dT%H-%M-%S')
     summary = []
+    any_succeeded = False
 
-    # The Guardian
-    guardian_articles = guardian.fetch_articles(
-        api_keys["guardian_api_key"],
-        from_date.strftime("%Y-%m-%d"),
-        to_date.strftime("%Y-%m-%d"),
-    )
-    print(f"Guardian done: {len(guardian_articles)} articles")
-    put_json(RAW_BUCKET, f"guardian/{timestamp}.json", guardian_articles)
-    summary.append(f"{len(guardian_articles)} Guardian articles")
+    sources = [
+        ("guardian", guardian, api_keys["guardian_api_key"], "%Y-%m-%d"),
+        ("nyt", nyt, api_keys["nyt_api_key"], "%Y%m%d"),
+        ("currents", currents, api_keys["currents_api_key"], "%Y-%m-%dT%H:%M:%SZ"),
+    ]
 
-    # New York Times
-    nyt_articles = nyt.fetch_articles(
-        api_keys["nyt_api_key"],
-        from_date.strftime("%Y%m%d"),
-        to_date.strftime("%Y%m%d"),
-    )
-    print(f"NYT done: {len(nyt_articles)} articles")
+    for name, module, key, fmt in sources:
+        try:
+            articles = module.fetch_articles(
+                key,
+                from_date.strftime(fmt),
+                to_date.strftime(fmt),
+            )
+            print(f"{name} done: {len(articles)} articles")
+            put_json(RAW_BUCKET, f"{name}/{timestamp}.json", articles)
+            summary.append(f"{len(articles)} {name} articles")
+            any_succeeded = True
+        except Exception as e:
+            print(f"{name} ingest failed: {e}")
+            summary.append(f"{name} failed: {e}")
 
-    put_json(RAW_BUCKET, f"nyt/{timestamp}.json", nyt_articles)
-    summary.append(f"{len(nyt_articles)} NYT articles")
-
-    # Currents News
-    currents_articles = currents.fetch_articles(
-        api_keys["currents_api_key"],
-        from_date.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        to_date.strftime("%Y-%m-%dT%H:%M:%SZ"),
-    )
-    print(f"Currents done: {len(currents_articles)} articles")
-    put_json(RAW_BUCKET, f"currents/{timestamp}.json", currents_articles)
-    summary.append(f"{len(currents_articles)} Currents articles")
-
-    lambda_client.invoke(
+    if any_succeeded:
+        lambda_client.invoke(
             FunctionName="nexus-dev-normalize",
             InvocationType="Event",
             Payload=json.dumps({"timestamp": timestamp}).encode("utf-8"),
         )
-    print("Triggered normalize")
+        print("Triggered normalize")
+    else:
+        print("All sources failed, normalize not triggered")
 
     return {
         "statusCode": 200,

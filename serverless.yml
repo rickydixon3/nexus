@@ -47,7 +47,7 @@ custom:
 functions:
   ingest:
     handler: ingest.ingest
-    timeout: 180
+    timeout: 240
     events:
       - schedule: rate(6 hours)
 
