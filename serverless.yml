@@ -76,4 +76,3 @@ functions:
           method: get
 
 plugins:
-  - serverless-python-requirements
